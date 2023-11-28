@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+package="com.emrahpslcalculator">
+
+ <uses-sdk android:minSdkVersion="21" />
     <application
         android:label="calculator"
         android:name="${applicationName}"

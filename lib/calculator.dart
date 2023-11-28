@@ -11,57 +11,43 @@ class Calculator extends StatefulWidget {
 
 class CalculatorState extends State<Calculator> {
 
+  String input = "";
   String output = "";
   double num1 = 0;
   double num2 = 0;
   String operand = "";
 
-  void buttonPressed(String text){
+  void buttonPressed(text){
 
-    if (text == "C"){
+    if (text == "C") {
+      input = "";
       output = "";
-      num1 = 0;
-      num2 = 0;
-      operand = "";
 
-    }else if (text == "+" || text == "-" || text == "x" || text == "/" || text == "%" ) {
-      num1 = double.parse(output);
-      operand = text;
-      output = "";
-    } else if (text == "←") {
-      setState(() {
-        output = output.substring(0, output.length-1);
-        if(output.isEmpty){output="";}
-      });
-    }else if (text == "(" || text == ")"){
-      setState(() {
-        output += text;
-      });
-    }
-    else if (text == "="){
-      num2 = double.parse(output);
-      if(operand=="+"){
-        output = (num1+num2).toString();
+    }else if (text == "←") {
+      if(input.isNotEmpty){
+        input = input.substring(0, input.length-1);
+        if(input.isEmpty){input="";}
       }
-      if(operand=="-"){
-        output = (num1-num2).toString();
+    } else if (text == "="){  // burada parse metodu ile matamatiksel fonksionları aktif hale getirdik.
+      if(input.isNotEmpty) {
+        var userInput = input;
+        userInput = input.replaceAll("x", "*");
+        Parser p = Parser();
+        Expression expression = p.parse(userInput);
+        ContextModel cm = ContextModel();
+        var finalValue = expression.evaluate(EvaluationType.REAL, cm);
+        output = finalValue.toString();
+        if (output.endsWith(".0")) {
+          output = output.substring(0, output.length - 2);
+        }
       }
-      if(operand=="x"){
-        output = (num1*num2).toString();
-      }
-      if(operand=="/"){
-        output = (num1/num2).toString();
-      }
-      num1 =0;
-      num2 = 0;
-      operand ="";
     }else {
-      output += text;
+      input = input + text;
     }
     setState(() {});
   }
 
-  Widget buildButton(String text) {
+  Widget buildButton(text) {
 
     var ekranBilgisi =
     MediaQuery.of(context); // Ekran bilgisini almak için yazılmalı
@@ -83,31 +69,34 @@ class CalculatorState extends State<Calculator> {
       textColor = sayilarRenk;
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 1.5, right: 1.5, top:12.0, bottom: 1.0),
-      child: Expanded(
-        child: ElevatedButton(
-          onPressed: () {
-            buttonPressed(text);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: buttonColor,
-            shape: const CircleBorder(),
-          ),
-          child: SizedBox(
-            width: ekranGenisligi/8, height: ekranYuksekligi/8,
-            child: Center(
-              child: Text(
-                text,
-                style: TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                    color: textColor),
+    return Column(
+        children :  [
+          Padding(
+            padding: const EdgeInsets.only(left: 9, right: 8, top:12.0, bottom: 1.0),
+            child: ElevatedButton(
+              onPressed: () {
+                buttonPressed(text);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: buttonColor,
+                shape: const CircleBorder(),
+              ),
+              child: SizedBox(
+                width: ekranGenisligi/11, height: ekranYuksekligi/11,
+                child: Center(
+                  child: Text(
+                    text,
+                    style: TextStyle(
+                        fontSize: 42,
+                        fontWeight: FontWeight.bold,
+                        color: textColor),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
+
+        ]
     );
   }
 
@@ -121,21 +110,40 @@ class CalculatorState extends State<Calculator> {
       ),*/
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
+        children: [
           Expanded(
-              child: Container(
-                alignment: Alignment.topRight,
-                padding: const EdgeInsets.only(top:40, right:5),
-                child: Text(
-                   output,
-                  style: const TextStyle(fontSize: 64.0, fontWeight: FontWeight.bold, color: Colors.white),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children : [
+                Text(
+                  input,
+                  style: const TextStyle(fontSize: 54,
+                      fontWeight: FontWeight.bold, color: Colors.white),
                 ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Text(
+                  output,
+                  style: TextStyle(fontSize: 42,
+                      fontWeight: FontWeight.bold, color: Colors.white.withOpacity(0.5),),
+                ),
+              ]
               ),
             ),
-          const Padding(
-            padding: EdgeInsets.only(bottom:32),
-            child:  Expanded(child: Divider(), // Aradaki line için eklendi.
-            ),
+          ),
+
+          const Column(
+              children : [
+                Padding(
+                  padding: EdgeInsets.only(bottom:32),
+                  child:   Divider(), // Aradaki line için eklendi.
+                ),
+              ]
           ),
           Row(
             children: <Widget>[
